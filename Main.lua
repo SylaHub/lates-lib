@@ -378,49 +378,58 @@ function Library:CreateWindow(Settings: { Title: string, Size: UDim2, Transparen
 
 	--// Tab Functions
 
-	function Options:SetTab(Name: string)
-		for Index, Button in next, Tab:GetChildren() do
-			if Button:IsA("TextButton") then
-				local Opened, SameName = Button.Value, (Button.Name == Name);
-				local Padding = Button:FindFirstChildOfClass("UIPadding");
+function Options:SetTab(Name: string)
+    for Index, Button in next, Tab:GetChildren() do
+        if Button:IsA("TextButton") then
+            local Opened, SameName = Button.Value, (Button.Name == Name)
+            local Padding = Button:FindFirstChildOfClass("UIPadding")
 
-				if SameName and not Opened.Value then
-					Tween(Padding, .25, { PaddingLeft = UDim.new(0, 25) });
-					Tween(Button, .25, { BackgroundTransparency = 0.9, Size = UDim2.new(1, -15, 0, 30) });
-					SetProperty(Opened, { Value = true });
-				elseif not SameName and Opened.Value then
-					Tween(Padding, .25, { PaddingLeft = UDim.new(0, 20) });
-					Tween(Button, .25, { BackgroundTransparency = 1, Size = UDim2.new(1, -44, 0, 30) });
-					SetProperty(Opened, { Value = false });
-				end
-			end
-		end
+            -- Handle icon switching
+            local Icon = Button:FindFirstChild("Icon")
+            if Icon then
+                if SameName then
+                    -- Highlighted vector icon
+                    Icon.ImageColor3 = Color3.fromRGB(0, 255, 200)
+                else
+                    -- Default vector icon
+                    Icon.ImageColor3 = Color3.fromRGB(255, 255, 255)
+                end
+            end
 
-		for Index, Main in next, Holder:GetChildren() do
-			if Main:IsA("CanvasGroup") then
-				local Opened, SameName = Main.Value, (Main.Name == Name);
-				local Scroll = Main:FindFirstChild("ScrollingFrame");
+            if SameName and not Opened.Value then
+                Tween(Padding, .25, { PaddingLeft = UDim.new(0, 25) })
+                Tween(Button, .25, { BackgroundTransparency = 0.9, Size = UDim2.new(1, -15, 0, 30) })
+                SetProperty(Opened, { Value = true })
+            elseif not SameName and Opened.Value then
+                Tween(Padding, .25, { PaddingLeft = UDim.new(0, 20) })
+                Tween(Button, .25, { BackgroundTransparency = 1, Size = UDim2.new(1, -44, 0, 30) })
+                SetProperty(Opened, { Value = false })
+            end
+        end
+    end
 
-				if SameName and not Opened.Value then
-					Opened.Value = true
-					Main.Visible = true
+    for Index, Main in next, Holder:GetChildren() do
+        if Main:IsA("CanvasGroup") then
+            local Opened, SameName = Main.Value, (Main.Name == Name)
+            local Scroll = Main:FindFirstChild("ScrollingFrame")
 
-					Tween(Main, .3, { GroupTransparency = 0 });
-					Tween(Scroll["UIPadding"], .3, { PaddingTop = UDim.new(0, 5) });
+            if SameName and not Opened.Value then
+                Opened.Value = true
+                Main.Visible = true
+                Tween(Main, .3, { GroupTransparency = 0 })
+                Tween(Scroll["UIPadding"], .3, { PaddingTop = UDim.new(0, 5) })
+            elseif not SameName and Opened.Value then
+                Opened.Value = false
+                Tween(Main, .15, { GroupTransparency = 1 })
+                Tween(Scroll["UIPadding"], .15, { PaddingTop = UDim.new(0, 15) })	
+                task.delay(.2, function()
+                    Main.Visible = false
+                end)
+            end
+        end
+    end
+end
 
-				elseif not SameName and Opened.Value then
-					Opened.Value = false
-
-					Tween(Main, .15, { GroupTransparency = 1 });
-					Tween(Scroll["UIPadding"], .15, { PaddingTop = UDim.new(0, 15) });	
-
-					task.delay(.2, function()
-						Main.Visible = false
-					end)
-				end
-			end
-		end
-	end
 
 	function Options:AddTabSection(Settings: { Name: string, Order: number })
 		local Example = Examples["SectionExample"];
